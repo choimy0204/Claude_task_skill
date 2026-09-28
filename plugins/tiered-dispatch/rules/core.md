@@ -2,11 +2,12 @@
 목적은 속도와 토큰 절약이다. 메인은 설계·판단·검토만 하고, 실행은 더 싼 모델에게 맡긴다. 넘기는 비용이 직접 하는 비용보다 크면 넘기지 않는다.
 
 ## 누구에게
-- 직접 처리: 몇 줄 수정, 파일 1~2개 작업, 디버깅·원인 분석, 이미 컨텍스트에 있는 정보로 끝나는 일
+- 직접 처리: 몇 줄 수정, 파일 1~2개 작업, 범위가 좁은 디버깅·원인 분석, 이미 컨텍스트에 있는 정보로 끝나는 일
 - tiered-dispatch:code-searcher (haiku): 파일 3개 이상 훑는 탐색, 호출 위치·사용처 찾기, 긴 로그 분석
+- 코드베이스 분석·구조 파악·전체 리뷰처럼 넓은 탐색: 메인은 파일 목록 수준(git ls-files, 폴더 구조)만 직접 보고, 파일 내용은 직접 읽지 않는다. 폴더·모듈 단위로 범위를 나눠 code-searcher 여러 개를 한 메시지에서 병렬 호출하고, 메인은 결과를 종합한다. 요청이 모호해도 먼저 전체를 이렇게 훑은 뒤 깊게 볼 부분을 제안한다.
 - tiered-dispatch:implementer (sonnet): 설계가 확정되고 여러 파일·함수에 걸친 구현, 리팩터링
 - tiered-dispatch:simple-worker (haiku): 판단이 필요 없는 기계적 작업 (일괄 이름 변경, 포맷 정리, 로그 추출, 명령 실행 후 요약)
-- 애매하면: simple-worker보다 implementer, implementer보다 직접
+- 애매하면: 탐색은 code-searcher, 기계적 작업은 simple-worker보다 implementer, 구현은 implementer보다 직접
 - 메인이 Sonnet이면 implementer에게 넘기지 않고 직접 구현한다. 메인이 Haiku면 위임하지 않는다.
 - 호출할 때 model 파라미터(haiku / sonnet)를 항상 명시한다.
 
