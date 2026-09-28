@@ -31,6 +31,9 @@ Claude Code가 작업을 모델 등급별로 **자동 분배**하는 플러그�
    claude plugin install tiered-dispatch@team-claude
    ```
 
+### 이 PC 한 번에 설정 (구버전 정리 + 설치)
+`setup_this_pc.bat`을 실행합니다. 구버전 정리 → 직접 만든 분배 설정 정리 → 플러그인 설치를 단계마다 확인하며 진행하고, 옮기거나 지운 파일은 모두 백업합니다.
+
 ### 개인 설치 (로컬 경로)
 ```
 claude plugin marketplace add "D:\업무\03_개발\ClaudeSkill"
