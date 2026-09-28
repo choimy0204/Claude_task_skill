@@ -23,6 +23,9 @@
 
 ## 기록
 - 에이전트·모델·토큰 사용량은 훅이 자동으로 기록한다. 담당 표를 따로 만들지 않는다.
-- 위임했다면 응답 끝에 한 줄만 붙인다. 예: `위임: code-searcher(haiku)×2, implementer(sonnet)×1`
+- 작업을 처리한 응답 끝에는 항상 한 줄을 붙인다. 짧은 질문·대화에는 붙이지 않는다.
+  위임했을 때: `처리: main(opus) · 위임: code-searcher(haiku)×2, implementer(sonnet)×1`
+  혼자 처리했을 때: `처리: main(opus)`
+  main 모델은 시스템에 안내된 현재 세션 모델을 opus / sonnet / haiku로 적는다. 알 수 없으면 `main(확인 안 됨)`.
 - 커밋은 담당 단위로 나누고, 본문에 `Agent: 이름 (모델)`을 적는다. 모델은 호출할 때 넣은 model 값을 따른다.
 - 사용량이나 절약 효과를 물으면 usage-report 스킬을 쓴다.
