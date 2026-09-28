@@ -37,7 +37,11 @@ try {
         New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
     }
 
-    $stdinRaw = [Console]::In.ReadToEnd()
+    # PS 5.1의 [Console]::In은 콘솔 코드페이지로 읽어 한글 경로가 깨지므로 바이트로 읽어 UTF-8로 디코딩한다.
+    $stdinStream = [Console]::OpenStandardInput()
+    $buffer = New-Object System.IO.MemoryStream
+    $stdinStream.CopyTo($buffer)
+    $stdinRaw = [System.Text.Encoding]::UTF8.GetString($buffer.ToArray())
     if ([string]::IsNullOrWhiteSpace($stdinRaw)) {
         Write-TrackError "stdin이 비어 있음"
         exit 0
@@ -77,6 +81,8 @@ try {
         $lines = Get-Content -LiteralPath $transcriptPath -Encoding UTF8
         foreach ($line in $lines) {
             if ([string]::IsNullOrWhiteSpace($line)) { continue }
+            # 도구 출력 등 usage가 없는 긴 줄은 JSON 파싱을 건너뛴다 (속도).
+            if (-not $line.Contains('"usage"')) { continue }
             $entry = $null
             try {
                 $entry = $line | ConvertFrom-Json

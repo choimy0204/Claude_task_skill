@@ -1,0 +1,12 @@
+{
+  "name": "team-claude",
+  "owner": { "name": "sbicom22" },
+  "metadata": { "description": "팀 공용 Claude Code 플러그인 모음" },
+  "plugins": [
+    {
+      "name": "tiered-dispatch",
+      "source": "./plugins/tiered-dispatch",
+      "description": "모델 등급별 작업 자동 분배 + 사용량 자동 기록"
+    }
+  ]
+}

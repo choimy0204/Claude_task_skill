@@ -1,0 +1,11 @@
+{
+  "extraKnownMarketplaces": {
+    "team-claude": {
+      "source": { "source": "github", "repo": "YOUR-ORG/YOUR-REPO" },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "tiered-dispatch@team-claude": true
+  }
+}
