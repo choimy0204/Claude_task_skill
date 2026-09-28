@@ -18,40 +18,35 @@ Claude Code가 작업을 모델 등급별로 **자동 분배**하는 플러그�
 | `plugins/tiered-dispatch/skills/handoff` | 큰 작업용 지시서 템플릿 (필요할 때만 로드) |
 | `plugins/tiered-dispatch/skills/usage-report` | "위임 사용량 보여줘" 같은 요청에 사용량 요약 |
 | `plugins/tiered-dispatch/scripts/` | 규칙 주입, 사용량 기록, 리포트, 구버전 정리 스크립트 |
-| `team-settings.example.json` | 팀 저장소 `.claude/settings.json`에 넣을 예시 |
+| `install_or_update.bat` | 설치 겸 업데이트 (→ `tools/install-or-update.ps1`) |
 | `legacy/` | 이전 bat 설치 방식 파일 (보관용) |
 
-## 설치
+## 설치, 업데이트
 
-### 팀 배포 (권장)
-1. 이 폴더를 git 저장소로 올립니다. (예: GitHub `YOUR-ORG/YOUR-REPO`)
-2. 팀 프로젝트 저장소의 `.claude/settings.json`에 `team-settings.example.json` 내용을 넣고, `repo` 값을 실제 저장소로 바꿉니다.
-3. 팀원이 그 프로젝트에서 Claude Code를 열고 폴더 신뢰를 수락하면 설치를 안내받습니다. 안내가 뜨지 않으면 한 번만 실행합니다.
-   ```
-   claude plugin install tiered-dispatch@team-claude
-   ```
+팀원은 이 폴더 파일을 받아 **`install_or_update.bat`만 실행**하면 됩니다. git은 파일 보관용입니다.
 
-### 이 PC 한 번에 설정 (구버전 정리 + 설치)
-`setup_this_pc.bat`을 실행합니다. 구버전 정리 → 직접 만든 분배 설정 정리 → 플러그인 설치를 단계마다 확인하며 진행하고, 옮기거나 지운 파일은 모두 백업합니다.
+### 처음 설치
+1. 이 폴더를 통째로 받아 원하는 위치에 둡니다. 설치 후에도 **폴더를 지우지 마세요.** 업데이트할 때 이 폴더를 기준으로 합니다.
+2. Claude Code를 모두 종료하고 `install_or_update.bat`을 실행합니다.
+3. 새 대화를 시작하면 적용됩니다.
 
-### 개인 설치 (로컬 경로)
+배치파일이 하는 일:
+- 예전 bat(`install_claude_agents.bat`) 설치본이 있으면 미리보기를 보여 주고, 동의하면 정리합니다. 변경 전 파일은 `~/.claude/tiered-dispatch-migration-backup_<시각>`에 백업합니다. 설치기가 넣은 파일과 규칙 블록만 지우고, 직접 수정한 파일은 남깁니다.
+- `~/.claude/agents/simple-worker.md`, `~/.claude/skills/handoff`가 있으면 중복이라 옮길지 묻습니다.
+- 이 폴더를 마켓플레이스(`team-claude`)로 등록하고 플러그인을 설치합니다.
+
+### 업데이트
+1. 새 파일을 받아 **같은 폴더에 덮어씁니다.**
+2. `install_or_update.bat`을 다시 실행합니다. 새 버전이 있으면 업데이트합니다.
+3. 새 대화부터 적용됩니다.
+
+폴더 위치를 바꿨다면 새 위치에서 실행하세요. 자동으로 새 경로로 다시 등록합니다.
+
+### 제거
 ```
-claude plugin marketplace add "D:\업무\03_개발\ClaudeSkill"
-claude plugin install tiered-dispatch@team-claude
+claude plugin uninstall tiered-dispatch@team-claude
+claude plugin marketplace remove team-claude
 ```
-
-### 업데이트, 제거
-- 업데이트: `plugin.json`의 `version`을 올려 저장소에 푸시하면, `autoUpdate`가 켜진 팀원은 자동으로 받습니다.
-- 제거: `claude plugin uninstall tiered-dispatch@team-claude`
-
-## 이전 bat 설치에서 옮겨 올 때
-예전 `install_claude_agents.bat`으로 설치한 PC는 `~/.claude/agents`에 같은 이름의 에이전트가 남아 중복됩니다. 아래 스크립트로 정리합니다. 먼저 `-WhatIf`로 무엇이 바뀌는지 확인하세요. 변경 전 파일은 모두 `~/.claude/tiered-dispatch-migration-backup_<시각>`에 백업됩니다.
-```
-powershell -NoProfile -ExecutionPolicy Bypass -File plugins\tiered-dispatch\scripts\migrate-legacy.ps1 -WhatIf
-powershell -NoProfile -ExecutionPolicy Bypass -File plugins\tiered-dispatch\scripts\migrate-legacy.ps1
-```
-- 설치기가 넣은 파일과 규칙 블록만 지웁니다. 직접 수정한 파일은 남기고 알려 줍니다.
-- 손으로 만든 `agents/simple-worker.md`, `skills/handoff`는 자동으로 지우지 않습니다. 확인 후 직접 지우세요.
 
 ## 사용량 기록
 - 위치: `~/.claude/plugins/data/tiered-dispatch*/usage.jsonl` (서브에이전트 1회당 1줄)
