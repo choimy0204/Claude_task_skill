@@ -115,6 +115,10 @@ if ($installed -match [regex]::Escape($Plugin)) {
 } else {
     & claude plugin install $Plugin
 }
+# 꺼져 있던 경우(설정에서 비활성화 등) 다시 켠다.
+if ((& claude plugin list 2>&1 | Out-String) -match "$([regex]::Escape($Plugin))[^\n]*(\n(?!\s*>)[^\n]*){0,5}?\n\s*Status:[^\n]*disabled") {
+    & claude plugin enable $Plugin
+}
 
 Write-Host ""
 & claude plugin list 2>&1 | Select-String -Context 0,3 "tiered-dispatch" | ForEach-Object { Write-Host $_ }

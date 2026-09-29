@@ -18,7 +18,8 @@ Claude Code가 작업을 모델 등급별로 **자동 분배**하는 플러그�
 | `plugins/tiered-dispatch/skills/handoff` | 큰 작업용 지시서 템플릿 (필요할 때만 로드) |
 | `plugins/tiered-dispatch/skills/usage-report` | "위임 사용량 보여줘" 같은 요청에 사용량 요약 |
 | `plugins/tiered-dispatch/scripts/` | 규칙 주입, 사용량 기록, 리포트, 구버전 정리 스크립트 |
-| `install_or_update.bat` | 설치 겸 업데이트 (→ `tools/install-or-update.ps1`) |
+| `install_or_update.bat` | 적용: 설치 겸 업데이트 (→ `tools/install-or-update.ps1`) |
+| `restore.bat` | 원복: 플러그인 제거, 기본 상태로 복귀 (→ `tools/restore.ps1`) |
 | `legacy/` | 이전 bat 설치 방식 파일 (보관용) |
 
 ## 설치, 업데이트
@@ -42,11 +43,13 @@ Claude Code가 작업을 모델 등급별로 **자동 분배**하는 플러그�
 
 폴더 위치를 바꿨다면 새 위치에서 실행하세요. 자동으로 새 경로로 다시 등록합니다.
 
-### 제거
-```
-claude plugin uninstall tiered-dispatch@team-claude
-claude plugin marketplace remove team-claude
-```
+### 원복 (제거)
+Claude Code를 모두 종료하고 `restore.bat`을 실행합니다. 새 대화부터 기본 상태로 동작합니다.
+- 플러그인을 제거하고 마켓플레이스(`team-claude`) 등록을 해제합니다.
+- 설치할 때 옮겨 둔 예전 파일(`~/.claude/tiered-dispatch-migration-backup_*`)이 있으면 목록을 보여 주고, 동의할 때만 제자리로 복원합니다. 이미 있는 파일은 덮어쓰지 않습니다.
+- 사용량 기록은 남깁니다.
+
+다시 적용하려면 `install_or_update.bat`을 실행합니다.
 
 ## 사용량 기록
 - 위치: `~/.claude/plugins/data/tiered-dispatch*/usage.jsonl` (서브에이전트 1회당 1줄)
