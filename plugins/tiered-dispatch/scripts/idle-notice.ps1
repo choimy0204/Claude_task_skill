@@ -1,11 +1,14 @@
 ﻿<#
   idle-notice.ps1
-  Claude Code UserPromptSubmit 훅. 마지막 응답 뒤 30분 넘게 지나 프롬프트 캐시가 만료됐고 컨텍스트가 크면,
+  Claude Code UserPromptSubmit 훅. 마지막 응답 뒤 프롬프트 캐시 수명(1시간 캐시면 60분, 5분 캐시면 30분 기준)이 지나 캐시가 만료됐고 컨텍스트가 크면,
   주제가 바뀐 경우에만 /clear를 권하도록 모델에 짧은 안내를 넣는다. 조건이 아니면 아무것도 출력하지 않는다.
   이 스크립트는 세션을 절대 중단시키지 않는다 (항상 exit 0).
 #>
 
-$GapMinutes = 30
+# 구독 사용자는 메인 대화 캐시가 1시간(ephemeral_1h), API 키 사용자는 5분이다.
+# 5분 캐시는 잠깐 쉴 때마다 알리면 시끄러우므로 30분을 기준으로 한다.
+$GapMinutes1h = 60
+$GapMinutes5m = 30
 $MinCtx = 60000
 
 try {
@@ -32,7 +35,8 @@ try {
     } finally {
         $fs.Close()
     }
-    $lines = [System.Text.Encoding]::UTF8.GetString($bytes) -split "`n"
+    $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+    $lines = $text -split "`n"
 
     $ctx = -1
     $timestamp = $null
@@ -53,7 +57,10 @@ try {
 
     $last = [DateTimeOffset]::Parse($timestamp, [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::AssumeUniversal)
     $gap = [int][Math]::Floor(([DateTimeOffset]::UtcNow - $last).TotalMinutes)
-    if ($gap -lt $GapMinutes) { exit 0 }
+    # 최근 기록에 1시간 캐시 쓰기가 있으면 1시간 캐시로 본다.
+    $gapLimit = $GapMinutes5m
+    if ($text -match '"ephemeral_1h_input_tokens":\s*[1-9]') { $gapLimit = $GapMinutes1h }
+    if ($gap -lt $gapLimit) { exit 0 }
 
     $k = [int][Math]::Round($ctx / 1000)
     $msg = "[tiered-dispatch] 마지막 응답 뒤 $gap" + "분이 지나 프롬프트 캐시가 만료됐다. 현재 컨텍스트 $k" + "k가 이번 턴에 다시 캐시에 쓰인다. 이번 요청이 앞 작업과 다른 주제면 답변 끝에 한 줄로 '다른 주제는 /clear 후 새 대화로 시작하면 비용이 줄어듭니다'라고 권한다. 같은 주제면 이 안내는 언급하지 않는다."
