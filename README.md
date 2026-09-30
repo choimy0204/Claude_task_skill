@@ -21,6 +21,7 @@ Claude Code가 작업을 모델 등급별로 **자동 분배**하는 플러그�
 | `plugins/tiered-dispatch/scripts/` | 규칙 주입, 사용량 기록, 리포트, 구버전 정리 스크립트 |
 | `install_or_update.bat` | 적용: 설치 겸 업데이트 (→ `tools/install-or-update.ps1`) |
 | `restore.bat` | 원복: 플러그인 제거, 기본 상태로 복귀 (→ `tools/restore.ps1`) |
+| `rollback_to_2.4.bat` | 롤백: v2.4.0으로 되돌림 (스냅샷 `rollback/v2.4.0/`) |
 | `legacy/` | 이전 bat 설치 방식 파일 (보관용) |
 
 ## 설치, 업데이트
@@ -51,6 +52,10 @@ Claude Code를 모두 종료하고 `restore.bat`을 실행합니다. 새 대화�
 - 사용량 기록은 남깁니다.
 
 다시 적용하려면 `install_or_update.bat`을 실행합니다.
+
+### v2.4.0으로 롤백
+새 버전에 문제가 있으면 Claude Code를 모두 종료하고 `rollback_to_2.4.bat`을 실행합니다. 폴더 안의 v2.4.0 스냅샷(`rollback/v2.4.0/`)을 다시 설치합니다.
+최신 버전으로 돌아오려면 `install_or_update.bat`을 실행합니다. git에서는 태그 `v2.4.0`이 같은 버전입니다.
 
 ## 사용량 기록
 - 위치: `~/.claude/plugins/data/tiered-dispatch*/usage.jsonl` (서브에이전트 1회당 1줄)

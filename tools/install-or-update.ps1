@@ -4,13 +4,20 @@
   - 처음 실행: (구버전 bat 설치본이 있으면 정리) → 이 폴더를 마켓플레이스로 등록 → 설치
   - 다시 실행: 새 파일을 받은 뒤 실행하면 최신 버전으로 업데이트
   - 폴더를 옮긴 경우: 마켓플레이스 경로를 새 위치로 다시 등록
+  - 롤백: -SourceRoot <스냅샷 폴더> -Reinstall 로 이전 버전을 다시 설치 (rollback_to_2.4.bat)
 #>
+param(
+    [string]$SourceRoot = "",
+    [switch]$Reinstall
+)
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $RepoRoot    = Split-Path -Parent $PSScriptRoot
+if (-not [string]::IsNullOrEmpty($SourceRoot)) { $RepoRoot = [System.IO.Path]::GetFullPath($SourceRoot) }
+$ToolsRoot   = Split-Path -Parent $PSScriptRoot
 $ClaudeDir   = Join-Path $HOME ".claude"
-$Migrate     = Join-Path $RepoRoot "plugins\tiered-dispatch\scripts\migrate-legacy.ps1"
+$Migrate     = Join-Path $ToolsRoot "plugins\tiered-dispatch\scripts\migrate-legacy.ps1"
 $Manifest    = Join-Path $RepoRoot "plugins\tiered-dispatch\.claude-plugin\plugin.json"
 $Marketplace = "team-claude"
 $Plugin      = "tiered-dispatch@team-claude"
@@ -110,7 +117,11 @@ if ($null -eq $source) {
 # ---- 3. 설치 또는 업데이트 --------------------------------------------------
 Write-Step "3. 플러그인 설치/업데이트"
 $installed = (& claude plugin list 2>&1 | Out-String)
-if ($installed -match [regex]::Escape($Plugin)) {
+if ($Reinstall -and $installed -match [regex]::Escape($Plugin)) {
+    # 버전을 내릴 때는 update가 적용되지 않을 수 있어 지우고 다시 설치한다.
+    & claude plugin uninstall $Plugin
+    & claude plugin install $Plugin
+} elseif ($installed -match [regex]::Escape($Plugin)) {
     & claude plugin update $Plugin
 } else {
     & claude plugin install $Plugin

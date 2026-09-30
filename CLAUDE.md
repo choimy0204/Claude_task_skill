@@ -7,6 +7,7 @@
 - 마켓플레이스: `.claude-plugin/marketplace.json` (이름 `team-claude`)
 - 배포 방식: 팀원은 이 폴더 파일을 받아 `install_or_update.bat`(→ `tools/install-or-update.ps1`)을 실행한다. git은 파일 보관용이며 git 마켓플레이스·자동 업데이트는 쓰지 않는다.
 - `legacy/`: 이전 bat 설치 방식 보관용. 수정하지 않는다.
+- `rollback/v2.4.0/`: v2.4.0 롤백용 스냅샷(`rollback_to_2.4.bat`이 설치). 수정하지 않는다.
 - `plugins/tiered-dispatch/scripts/legacy/`: 구버전 판별용 참조본. 내용을 바꾸면 migrate-legacy.ps1이 구버전을 못 알아본다.
 
 ## 수정 규칙
