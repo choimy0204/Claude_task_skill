@@ -18,7 +18,7 @@ Claude Code가 작업을 모델 등급별로 **자동 분배**하는 플러그�
 | `plugins/tiered-dispatch/agents/` | 서브에이전트 3종 |
 | `plugins/tiered-dispatch/skills/handoff` | 큰 작업용 지시서 템플릿 (필요할 때만 로드) |
 | `plugins/tiered-dispatch/skills/usage-report` | "위임 사용량 보여줘" 같은 요청에 사용량 요약 |
-| `plugins/tiered-dispatch/scripts/` | 규칙 주입, 사용량 기록, 리포트, 구버전 정리 스크립트 |
+| `plugins/tiered-dispatch/scripts/` | 규칙 주입, 사용량 기록, 리포트, 구버전 정리, 토큰 절약 훅(큰 파일 통째 Read 1회 차단, 오래 쉰 뒤 /clear 안내) |
 | `install_or_update.bat` | 적용: 설치 겸 업데이트 (→ `tools/install-or-update.ps1`) |
 | `restore.bat` | 원복: 플러그인 제거, 기본 상태로 복귀 (→ `tools/restore.ps1`) |
 | `rollback_to_2.4.bat` | 롤백: v2.4.0으로 되돌림 (스냅샷 `rollback/v2.4.0/`) |
@@ -37,6 +37,10 @@ Claude Code가 작업을 모델 등급별로 **자동 분배**하는 플러그�
 - 예전 bat(`install_claude_agents.bat`) 설치본이 있으면 미리보기를 보여 주고, 동의하면 정리합니다. 변경 전 파일은 `~/.claude/tiered-dispatch-migration-backup_<시각>`에 백업합니다. 설치기가 넣은 파일과 규칙 블록만 지우고, 직접 수정한 파일은 남깁니다.
 - `~/.claude/agents/simple-worker.md`, `~/.claude/skills/handoff`가 있으면 중복이라 옮길지 묻습니다.
 - 이 폴더를 마켓플레이스(`team-claude`)로 등록하고 플러그인을 설치합니다.
+- 마지막에 **권장 설정(선택)** 을 하나씩 묻습니다. 동의하면 `~/.claude/settings.json`의 `env`에 추가합니다(변경 전 `settings.json.bak-tiered-dispatch-<시각>`으로 백업, 이미 있는 키는 묻지 않음).
+  - `CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`: 컨텍스트가 200k 근처가 되면 자동 압축. 과거 기록 시뮬레이션에서 메인 비용 Opus 약 −40%, Sonnet 약 −57%(상한). 긴 세션에서는 앞 내용의 세부가 요약됩니다.
+  - `BASH_MAX_OUTPUT_LENGTH=15000`: 명령 출력을 15,000자에서 자름(기본 30,000). 긴 로그가 컨텍스트에 쌓이는 것을 줄입니다.
+  - 추가한 키는 `~/.claude/tiered-dispatch-env.json`에 기록하며, `restore.bat`이 동의를 받아 값이 그대로인 키만 제거합니다. `CLAUDE_CONFIG_DIR`을 쓰는 경우 그 폴더를 기준으로 합니다.
 
 ### 업데이트
 1. 새 파일을 받아 **같은 폴더에 덮어씁니다.**
