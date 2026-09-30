@@ -2,6 +2,7 @@
 name: simple-worker
 description: 판단이 거의 필요 없는 기계적인 작업을 수행하는 작업자. 이름 일괄 변경, 포맷 정리, 로그에서 패턴 추출, 명령 실행 후 결과 요약 등에 사용. 짧은 지시 또는 핸드오프 md 경로를 받는다.
 model: haiku
+tools: Read, Edit, Write, Bash, PowerShell, Grep, Glob
 ---
 지시받은 것을 그대로 수행하고 결과만 보고한다.
 
