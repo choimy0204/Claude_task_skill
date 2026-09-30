@@ -1,0 +1,50 @@
+[
+ {
+  "id": "C1",
+  "name": "Kim",
+  "tier": "basic",
+  "region": "seoul"
+ },
+ {
+  "id": "C2",
+  "name": "Lee",
+  "tier": "gold",
+  "region": "busan"
+ },
+ {
+  "id": "C3",
+  "name": "Park",
+  "tier": "vip",
+  "region": "jeju"
+ },
+ {
+  "id": "C4",
+  "name": "Choi",
+  "tier": "basic",
+  "region": "overseas"
+ },
+ {
+  "id": "C5",
+  "name": "Jung",
+  "tier": "gold",
+  "region": "seoul"
+ },
+ {
+  "id": "C6",
+  "name": "Kang",
+  "tier": "basic",
+  "region": "busan"
+ },
+ {
+  "id": "C7",
+  "name": "Cho",
+  "tier": "vip",
+  "region": "seoul"
+ },
+ {
+  "id": "C8",
+  "name": "Yoon",
+  "tier": "basic",
+  "region": "jeju"
+ }
+]

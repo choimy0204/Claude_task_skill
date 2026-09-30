@@ -1,0 +1,86 @@
+[
+ {
+  "sku": "PEN-01",
+  "name": "Gel pen",
+  "price": "2.50",
+  "weight_kg": "0.02",
+  "category": "stationery"
+ },
+ {
+  "sku": "PEN-02",
+  "name": "Fountain pen",
+  "price": "18.00",
+  "weight_kg": "0.05",
+  "category": "stationery"
+ },
+ {
+  "sku": "NOTE-01",
+  "name": "Notebook A5",
+  "price": "6.00",
+  "weight_kg": "0.30",
+  "category": "stationery"
+ },
+ {
+  "sku": "NOTE-02",
+  "name": "Notebook A4",
+  "price": "9.00",
+  "weight_kg": "0.55",
+  "category": "stationery"
+ },
+ {
+  "sku": "MUG-01",
+  "name": "Mug",
+  "price": "12.00",
+  "weight_kg": "0.45",
+  "category": "kitchen"
+ },
+ {
+  "sku": "BOTTLE-01",
+  "name": "Water bottle",
+  "price": "15.00",
+  "weight_kg": "0.35",
+  "category": "kitchen"
+ },
+ {
+  "sku": "TEA-01",
+  "name": "Green tea 50g",
+  "price": "8.00",
+  "weight_kg": "0.10",
+  "category": "tea"
+ },
+ {
+  "sku": "TEA-02",
+  "name": "Black tea 100g",
+  "price": "11.00",
+  "weight_kg": "0.15",
+  "category": "tea"
+ },
+ {
+  "sku": "LAMP-01",
+  "name": "Desk lamp",
+  "price": "50.00",
+  "weight_kg": "1.80",
+  "category": "home"
+ },
+ {
+  "sku": "CHAIR-01",
+  "name": "Chair",
+  "price": "120.00",
+  "weight_kg": "7.50",
+  "category": "home"
+ },
+ {
+  "sku": "MAT-01",
+  "name": "Desk mat",
+  "price": "22.00",
+  "weight_kg": "0.90",
+  "category": "home"
+ },
+ {
+  "sku": "BAG-01",
+  "name": "Tote bag",
+  "price": "14.00",
+  "weight_kg": "0.25",
+  "category": "fashion"
+ }
+]

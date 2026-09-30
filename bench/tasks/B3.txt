@@ -1,0 +1,11 @@
+주문 반품 기능을 추가해줘.
+- OrderService.return_items(order_id, lines, now=None) 를 추가한다. lines는 {sku: 수량}이고, 반환값은 이번 반품의 환불액(Decimal)이다.
+- 출고된(shipped) 주문이나 일부 반품된 주문만 반품할 수 있다. 다른 상태면 OrderError.
+- 주문에 없는 sku, 0 이하 수량, 이미 반품한 수량을 빼고 남은 수량보다 많은 수량이면 OrderError를 내고 아무 상태도 바꾸지 않는다.
+- 환불액 = 반품 수량 × 단가 × (결제 때 할인 후 상품금액 ÷ 할인 전 상품금액) × (1 + 고객 지역 세율). 0.01 단위 ROUND_HALF_UP. 배송비는 환불하지 않는다.
+- 반품 수량만큼 창고 재고(on_hand)를 되돌린다.
+- 전부 반품되면 상태를 returned, 일부면 partially_returned 로 바꾼다 (OrderStatus에 추가).
+- "order.returned" 이벤트를 발행한다. 페이로드에 order_id, refund 를 넣는다.
+- 반품 내역은 주문에 저장되어 JSON 저장소에 저장했다가 다시 읽어도 유지되어야 한다 (다시 읽은 뒤에도 남은 수량 제한이 지켜져야 한다).
+- tests/test_returns.py 에 테스트를 추가하고, 전체 테스트(python -m unittest discover -s tests -t .)가 통과해야 한다.
+확인 없이 진행해.

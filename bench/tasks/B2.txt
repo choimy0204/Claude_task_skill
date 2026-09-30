@@ -1,0 +1,1 @@
+tests/test_pricing.py 의 test_bulk_discount_applies_at_threshold 테스트가 실패해. 원인 찾아서 고쳐줘.

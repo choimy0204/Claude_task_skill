@@ -1,0 +1,6 @@
+reports.py 에 export_daily_csv(repo, day, path) -> int 를 추가해줘.
+- day(YYYY-MM-DD)에 생성된 주문 중 paid, shipped 주문만 order_id 순으로 쓴다.
+- 헤더는 order_id,customer_id,status,units,total 이다. units는 주문 수량 합, total은 결제 때 저장된 order.total 을 소수 둘째 자리까지 쓴다.
+- 반환값은 헤더를 뺀 행 수. UTF-8.
+- cli 에 export --date YYYY-MM-DD --out 경로 명령을 추가한다.
+- 테스트도 추가해줘. 확인 없이 진행해.
