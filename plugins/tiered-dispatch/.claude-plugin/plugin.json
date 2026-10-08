@@ -1,7 +1,7 @@
 {
   "name": "tiered-dispatch",
   "displayName": "Tiered Dispatch",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "description": "메인 모델은 설계·판단·검토, 탐색·구현·단순 작업은 Haiku/Sonnet 서브에이전트에게 자동 분배하고 사용량을 자동 기록한다.",
   "author": { "name": "sbicom22" },
   "keywords": ["delegation", "subagent", "token-saving", "tracking"]
