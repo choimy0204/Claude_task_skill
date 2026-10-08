@@ -6,7 +6,11 @@
 const fs = require('fs'), path = require('path'), os = require('os');
 const ROOT = path.join(os.homedir(), '.claude', 'projects');
 const MIN_CALLS = +(process.argv[2] || 20);
+// [입력, 캐시 읽기, 출력] $/MTok. 5.5 세대는 모델 ID로, 그 밖은 계열 기본값(4.x 세대)으로 본다.
+// Haiku 5.5는 프롬프트 100k 이하 단가 (초과 시 $0.50/$2.50, 서브에이전트는 거의 넘지 않음).
 const PRICE = { opus: [5, 0.5, 25], sonnet: [3, 0.3, 15], haiku: [1, 0.1, 5] };
+const PRICE_ID = { 'claude-opus-5-5': [4, 0.2, 20], 'claude-sonnet-5-5': [2, 0.2, 10], 'claude-haiku-5-5': [0.1, 0.01, 0.5] };
+const price = m => PRICE_ID[m.replace(/-\d{8}$/, '')] || PRICE[fam(m)];
 const fam = m => /opus/.test(m) ? 'opus' : /haiku/.test(m) ? 'haiku' : 'sonnet';
 const CH_PER_TOK = 3.2;
 
@@ -42,7 +46,7 @@ function load(file) {
       const u = o.message.usage, m = o.message.model || '';
       if (m === '<synthetic>') continue;
       const c5 = u.cache_creation ? u.cache_creation.ephemeral_5m_input_tokens || 0 : 0;
-      ev.push({ k: 'call', id: o.message.id, dup: GLOBAL.has(o.message.id), t, m: fam(m), inp: u.input_tokens || 0, cw: u.cache_creation_input_tokens || 0, cw5: c5, cr: u.cache_read_input_tokens || 0, out: u.output_tokens || 0 });
+      ev.push({ k: 'call', id: o.message.id, dup: GLOBAL.has(o.message.id), t, m: fam(m), p: price(m), inp: u.input_tokens || 0, cw: u.cache_creation_input_tokens || 0, cw5: c5, cr: u.cache_read_input_tokens || 0, out: u.output_tokens || 0 });
     }
   }
   for (const e of ev) if (e.k === 'call' && !e.dup) GLOBAL.add(e.id);
@@ -72,7 +76,7 @@ for (const f of files) {
   // 호출별 비용 구성
   let prevT = null;
   for (const c of calls) {
-    const [i, r, o] = PRICE[c.m];
+    const [i, r, o] = c.p;
     a.out += c.out * o / 1e6; a.inp += c.inp * i / 1e6; a.r += c.cr * r / 1e6;
     const wc = c.cw * wPrice(c, i) / 1e6;
     if (prevT !== null && (c.t - prevT) / 60000 >= 5 && c.cw > 20000) { a.idleW += wc; a.idleN++; } else a.w += wc;
@@ -87,10 +91,10 @@ for (const f of files) {
   for (let idx = 0; idx < ev.length; idx++) {
     const e = ev[idx];
     if (e.k !== 'result') continue;
-    let later = 0, model = m;
-    for (let j = idx + 1; j < ev.length; j++) { if (ev[j].k === 'compact') break; if (ev[j].k === 'call' && !ev[j].dup) { later++; model = ev[j].m; } }
+    let later = 0, p = null;
+    for (let j = idx + 1; j < ev.length; j++) { if (ev[j].k === 'compact') break; if (ev[j].k === 'call' && !ev[j].dup) { later++; p = ev[j].p; } }
     if (!later) continue;
-    const [i, r] = PRICE[model];
+    const [i, r] = p || PRICE[m];
     const t = a.tools[e.n] || (a.tools[e.n] = { n: 0, tok: 0, cost: 0, big: 0 });
     t.n++; t.tok += e.tok; if (e.tok > 5000) t.big++;
     t.cost += e.tok * (1.25 * i + (later - 1) * r) / 1e6;

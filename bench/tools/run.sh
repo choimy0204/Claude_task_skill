@@ -2,7 +2,7 @@
 # 벤치마크 1회 실행 + 채점.
 # 사용법: run.sh <구성> <작업> <태그> [컨텍스트변형]
 #   구성: D(Opus, 플러그인 없음) A(Opus+v2.4.0) B(opusplan, 플러그인 없음) C0(Sonnet+v2.4.0) C(Sonnet+개발본)
-#         S(Sonnet, 플러그인 없음) E(Opus+개발본)
+#         S(Sonnet, 플러그인 없음) E(Opus+개발본) H(Sonnet+개발본 변형: Sonnet 메인도 탐색은 code-searcher 위임) HF(H와 같되 위임을 반드시 하도록 강제)
 #   작업: B1(큰 탐색, 실제 저장소 읽기 전용) B2(작은 수정) B3(여러 파일 구현) B4(주제 4개 긴 세션) B5(나눌 수 있는 큰 구현)
 #   컨텍스트변형(B4만): w1m / w200k / w120k / w80k (자동 압축 창), compact(주제마다 /compact), clear(주제마다 새 세션)
 # 환경변수: BENCH_WORK(작업 복사본 폴더), B1_REPO(큰 탐색 대상 저장소)
@@ -21,6 +21,13 @@ mkdir -p "$RAW" "$WORK/plugins"
 if [ ! -d "$WORK/plugins/v240" ]; then
   (cd "$ROOT" && git archive 493da33 plugins/tiered-dispatch | tar -x -C "$WORK/plugins" && mv "$WORK/plugins/plugins/tiered-dispatch" "$WORK/plugins/v240" && rmdir "$WORK/plugins/plugins")
 fi
+# H 변형: 개발본을 복사해 core.md의 "Sonnet·Haiku 메인은 위임 안 함" 줄만 바꾼다 (매번 새로 만든다)
+if [ "$cfg" = H ] || [ "$cfg" = HF ]; then
+  rm -rf "$WORK/plugins/dev_h"; cp -r "$ROOT/plugins/tiered-dispatch" "$WORK/plugins/dev_h"
+  sed -i 's/^- 메인(시스템에 안내된 현재 세션 모델)이 Sonnet이나 Haiku면 위임하지 않고 직접 한다..*$/- 메인이 Haiku면 위임하지 않고 직접 한다. 메인이 Sonnet이면 큰 탐색만 code-searcher에 위임하고 implementer는 쓰지 않는다./' "$WORK/plugins/dev_h/rules/core.md"
+  [ "$cfg" = HF ] && sed -i 's/^- 메인이 Haiku면 위임하지 않고 직접 한다. 메인이 Sonnet이면 .*$/- 메인이 Haiku면 위임하지 않고 직접 한다. 메인이 Sonnet이어도 위 1번(큰 탐색·분석)은 반드시 code-searcher로 위임한다. implementer는 쓰지 않는다./' "$WORK/plugins/dev_h/rules/core.md"
+  grep -qE '메인이 Sonnet이(면 큰 탐색만|어도 위 1번)' "$WORK/plugins/dev_h/rules/core.md" || { echo "H 변형 실패"; exit 1; }
+fi
 case $cfg in
   D)  MODEL=opus;     PLUG=() ;;
   A)  MODEL=opus;     PLUG=(--plugin-dir "$WORK/plugins/v240") ;;
@@ -29,6 +36,7 @@ case $cfg in
   C)  MODEL=sonnet;   PLUG=(--plugin-dir "$ROOT/plugins/tiered-dispatch") ;;
   S)  MODEL=sonnet;   PLUG=() ;;
   E)  MODEL=opus;     PLUG=(--plugin-dir "$ROOT/plugins/tiered-dispatch") ;;
+  H|HF) MODEL=sonnet; PLUG=(--plugin-dir "$WORK/plugins/dev_h") ;;
   *) echo "unknown cfg $cfg"; exit 1 ;;
 esac
 ENVJSON=""
