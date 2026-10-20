@@ -62,13 +62,24 @@ function Write-JsonFile([string]$Path, $Object) {
 }
 
 function Get-MarketplaceSource {
-    # "claude plugin marketplace list" 출력에서 team-claude의 Source 줄을 찾는다.
+    # 등록된 team-claude의 폴더 경로. 미등록이면 $null, 폴더가 아니면 "".
+    # 1순위: known_marketplaces.json (CLI 출력 형식이 버전마다 바뀌어서)
+    $known = Read-JsonFile (Join-Path $ConfigDir "plugins\known_marketplaces.json")
+    if ($null -ne $known) {
+        $entry = $known.PSObject.Properties[$Marketplace]
+        if ($null -eq $entry) { return $null }
+        $src = $entry.Value.source
+        if ($null -ne $src -and $src.source -eq "directory" -and $src.path) { return [string]$src.path }
+        return ""
+    }
+    # 2순위: "claude plugin marketplace list" 출력의 Source 줄
+    # 예) Source: Directory (D:\x)  /  Source: Folder ("D:\x")
     $lines = @(& claude plugin marketplace list 2>&1 | ForEach-Object { "$_" })
     for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($lines[$i] -notmatch "^\s*>\s*$([regex]::Escape($Marketplace))\s*$") { continue }
         for ($j = $i + 1; $j -lt [Math]::Min($i + 4, $lines.Count); $j++) {
-            if ($lines[$j] -match "Source:\s*Directory\s*\((.+)\)") { return $Matches[1].Trim() }
-            if ($lines[$j] -match "Source:\s*(.+)$") { return $Matches[1].Trim() }
+            if ($lines[$j] -match "Source:\s*(?:Directory|Folder)\s*\(\s*[`"'\u201C\u201D]?(.+?)[`"'\u201C\u201D]?\s*\)\s*$") { return $Matches[1].Trim() }
+            if ($lines[$j] -match "Source:") { return "" }
         }
         return ""
     }
@@ -76,9 +87,13 @@ function Get-MarketplaceSource {
 }
 
 function Test-SamePath([string]$A, [string]$B) {
-    $normA = [System.IO.Path]::GetFullPath($A).TrimEnd('\')
-    $normB = [System.IO.Path]::GetFullPath($B).TrimEnd('\')
-    return ($normA -ieq $normB)
+    try {
+        $normA = [System.IO.Path]::GetFullPath($A).TrimEnd('\')
+        $normB = [System.IO.Path]::GetFullPath($B).TrimEnd('\')
+        return ($normA -ieq $normB)
+    } catch {
+        return $false
+    }
 }
 
 # ---- 사전 확인 -------------------------------------------------------------
